@@ -10,10 +10,11 @@ What changes, in one table:
 | Shell | zsh + starship, no framework | zsh + oh-my-zsh, prompt decided in Phase 3 |
 | Agent harness | Pi (themes, extensions, pinned packages) + Claude + Codex + opencode | Claude Code + Codex CLI only |
 | Agent policy | `home/AGENTS.md` written by Kun | rewritten for me |
-| Agent multiplexer | herdr | drop unless I actually use it |
+| Agent multiplexer | herdr | keep |
+| Editor | Neovim as the daily editor | VS Code daily, Neovim only for quick terminal edits |
 | Repo identity | kunchenguid/dotfiles, no-PR policy, Kun's name in CI and templates | my fork, my README, my policy |
 
-Everything else (flake wiring, macOS defaults, Neovim, CLI packages, Hack Nerd Font) stays until I have a reason to change it.
+Everything else (flake wiring, macOS defaults, CLI packages, Hack Nerd Font) stays until I have a reason to change it.
 
 ## Ground rules
 
@@ -126,10 +127,25 @@ Rewrite `home/AGENTS.md` as my own global policy. Kun's rules that are worth kee
 
 Risk to note in README: both `claude-code` and `codex` are casks under `zap` cleanup. Removing either from `casks` and switching will run the cask's zap stanza, which can delete `~/.claude` or `~/.codex` state. Do not remove them casually.
 
-## Phase 5: herdr and Neovim
+## Phase 5: herdr, VS Code, Neovim
 
-- herdr: it is Kun's agent-pane multiplexer, wired for WezTerm. If I do not use it, remove `"herdr"` from `brews`, the `~/.config/herdr` symlink, `home/.config/herdr/`, and the herdr lines in `.gitignore`. If I want to try it, keep it as is; it does not depend on WezTerm specifically.
-- Neovim: keep Kun's config unchanged for now. It is self-contained under `home/.config/nvim` and uses the same rose-pine-moon theme as the Ghostty config above. Revisit after living with it.
+herdr (keep):
+
+- Keep `"herdr"` in `brews`, the `~/.config/herdr` symlink, `home/.config/herdr/config.toml`, and the herdr lines in `.gitignore`.
+- Kun tuned it against WezTerm (see the `herdr,wezterm` commits in the log about Escape and mouse capture). Verify under Ghostty on first use: Escape inside a pane, mouse wheel in alt-screen apps, and the `ctrl+b` prefix not clashing with a Ghostty keybind. Fix in `home/.config/ghostty/config` or `config.toml` if anything is off.
+
+VS Code (add, daily editor):
+
+- `casks`: add `"visual-studio-code"`.
+- `home.nix`: change `home.sessionVariables.EDITOR` from `"nvim"` to `"code --wait"` so git and other tools open VS Code.
+- Settings: use VS Code Settings Sync, do not symlink `~/Library/Application Support/Code/User/settings.json`. That file is rewritten by the app, extension state lives next to it, and Settings Sync already gives the cross-machine behaviour this repo is for.
+- Optional later: `home/.vscode/extensions.txt` produced by `code --list-extensions`, restored by a one-line `code --install-extension` loop in `bootstrap.sh`. Only if Settings Sync turns out not to cover extensions well enough.
+
+Neovim (demote, do not remove):
+
+- Keep the `neovim` package in `home.packages` for quick edits over SSH and in herdr panes.
+- Keep Kun's `home/.config/nvim` config as is for now. It is self-contained and bootstraps lazy.nvim on first launch. If the plugin set feels like maintenance for an editor I rarely open, replace it with a plain `init.lua` (colorscheme, line numbers, clipboard) and delete `lazy-lock.json` and `lua/plugins/`.
+- Drop the Neovim bullet from the README's "What you get" list or reword it as a secondary editor.
 
 ## Phase 6: packages and macOS defaults
 
@@ -150,9 +166,9 @@ After that, every change is edit, `./rebuild.sh`, commit.
 
 ## Open decisions
 
-These change the work, so settle them before Phase 3 and Phase 5:
+These change the work, so settle them before Phase 3:
 
 - Prompt: starship (recommended) or an oh-my-zsh theme.
-- Keep herdr or drop it.
 - Keep the `cc` / `co` full-auto aliases.
 - Rename the repo to `dotfiles` or leave it.
+- Neovim: keep Kun's plugin config or shrink it to a plain `init.lua`.
