@@ -7,7 +7,7 @@ What changes, in one table:
 | Area | Kun | Me |
 | --- | --- | --- |
 | Terminal | WezTerm (cask + `home/.config/wezterm`) | Ghostty (cask + `home/.config/ghostty/config`) |
-| Shell | zsh + starship, no framework | zsh + oh-my-zsh, prompt decided in Phase 3 |
+| Shell | zsh + starship, no framework | zsh + oh-my-zsh plugins, starship prompt |
 | Agent harness | Pi (themes, extensions, pinned packages) + Claude + Codex + opencode | Claude Code + Codex CLI only |
 | Agent policy | `home/AGENTS.md` written by Kun | rewritten for me |
 | Agent multiplexer | herdr | keep |
@@ -87,16 +87,13 @@ Notes:
 oh-my-zsh = {
   enable = true;
   plugins = [ "git" "z" "fzf" "docker" ];   # trim to what I use
-  theme = "";                               # see prompt decision below
+  theme = "";                               # empty on purpose: starship owns the prompt
 };
 ```
 
 Keep `autosuggestion.enable`, `syntaxHighlighting.enable`, and the `bindkey '^f' autosuggest-accept` line. Home Manager sources oh-my-zsh at order 800 in `.zshrc`, so `initContent` (default order 1000) runs after it and my bindings win.
 
-Prompt decision (pick one, two prompts fight each other):
-
-1. Keep starship, set `theme = ""`. Recommended: starship is already configured, fast, and does not depend on oh-my-zsh theme files.
-2. Use an oh-my-zsh theme (`robbyrussell`, or `powerlevel10k` via `custom`). Then remove the `programs.starship` block.
+Prompt: starship, decided. Keep the `programs.starship` block as is. `theme` stays empty so oh-my-zsh never sets its own prompt; oh-my-zsh is used only for its plugins. Starship's init is emitted after oh-my-zsh in `.zshrc`, so it wins regardless.
 
 Aliases: keep `..`, `add`, `push`, `pull`, `m`. Keep or drop `cc` and `co` deliberately; they skip permission prompts. Remove any aliases that oh-my-zsh's `git` plugin already provides if they collide (`gp`, `gl`, etc. do not collide with Kun's names, so no conflict today).
 
@@ -168,7 +165,6 @@ After that, every change is edit, `./rebuild.sh`, commit.
 
 These change the work, so settle them before Phase 3:
 
-- Prompt: starship (recommended) or an oh-my-zsh theme.
 - Keep the `cc` / `co` full-auto aliases.
 - Rename the repo to `dotfiles` or leave it.
 - Neovim: keep Kun's plugin config or shrink it to a plain `init.lua`.
